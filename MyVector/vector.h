@@ -21,7 +21,7 @@ public:
 	iterator end();
 	size_t size();
 	bool empty();
-	size_t size();
+	
 	void clear();
 	void erase(iterator );
 };
@@ -93,7 +93,7 @@ inline iterator<Type> vector<Type>::begin()
 template<typename Type>
 inline iterator<Type> vector<Type>::end()
 {
-	return &m_pData[m_pUsed];
+	return &m_pData[m_nUsed];
 }
 
 
@@ -110,7 +110,19 @@ inline void vector<Type>::clear()
 template<typename Type>
 inline void vector<Type>::erase(iterator _index)
 {
-	delete m_pData[_];
+	size_t _oldsize = m_size;
+	m_size *= 2;
+	Type* m_newData = new Type[m_size];
+	for (size_t i = 0; i < _oldsize; i++) {
+		if (m_pData[i] == _index)
+			continue;
+		m_newData[i] = m_pData[i];
+		
+	}
+	m_nUsed--;
+	delete[] m_pData;
+	 
+	m_pData = m_newData;
 }
 
 template<typename Type>
@@ -132,10 +144,21 @@ inline iterator<Basic>::iterator(Basic *_arr) :
 {
 }
 template<class Basic>
+inline bool iterator<Basic>::operator==(iterator _other)
+{
+	
+	return *m_Data==*_other.m_Data;
+}
+template<class Basic>
 inline iterator<Basic> & iterator<Basic>::operator--()
 {
 	*m_Data--;
 	return *this;
+}
+template<class Basic>
+inline Basic iterator<Basic>::operator*()
+{
+	return *m_Data;
 }
 template<class Basic>
 inline iterator<Basic> & iterator<Basic>::operator++()
