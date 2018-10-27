@@ -35,6 +35,7 @@ public:
 	iterator(Basic*);
 	iterator &operator=(Basic*);
 	bool operator!=(iterator);
+	bool operator==(Basic&);
 	bool operator==(iterator);
 	bool operator<=(iterator);
 	bool operator>=(iterator);
@@ -114,7 +115,7 @@ inline void vector<Type>::erase(iterator _index)
 	m_size *= 2;
 	Type* m_newData = new Type[m_size];
 	for (size_t i = 0; i < _oldsize; i++) {
-		if (m_pData[i] == _index)
+		if (m_pData[i] == _index.m_Data)
 			continue;
 		m_newData[i] = m_pData[i];
 		
@@ -142,6 +143,11 @@ template<class Basic>
 inline iterator<Basic>::iterator(Basic *_arr) :
 	m_Data(_arr)
 {
+}
+template<class Basic>
+inline bool iterator<Basic>::operator==(Basic &_other)
+{
+	return (*m_Data) == (*_other);
 }
 template<class Basic>
 inline bool iterator<Basic>::operator==(iterator _other)
