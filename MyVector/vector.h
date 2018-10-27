@@ -4,13 +4,13 @@ template <class Basic>
 class iterator;
 template <typename Type>
 class vector{
-	
-	friend iterator<Type>;
-	
-public:
 	size_t m_size;
 	Type* m_pData;
 	size_t m_nUsed;
+	friend iterator<Type>;
+	
+public:
+
 	typedef iterator<Type> iterator;
 
 	vector(size_t = 10);
@@ -18,9 +18,35 @@ public:
 	void resize();
 	void push_back(Type);
 	void insert();
-	void begin();
+	iterator begin();
+	iterator end();
+	size_t size();
+	bool empty();
+	size_t size();
+	void clear();
+	void erase(iterator );
 };
-
+template<class Basic>
+class iterator
+{
+	typedef vector<Basic> vector;
+	Basic *m_Data;
+public:
+	iterator() {}
+	iterator(Basic*);
+	iterator &operator=(Basic*);
+	bool operator!=(iterator);
+	bool operator==(iterator);
+	bool operator<=(iterator);
+	bool operator>=(iterator);
+	bool operator<(iterator);
+	bool operator>(iterator);
+	iterator &operator++();
+	iterator operator++(int);
+	iterator &operator--();
+	iterator operator--(int);
+	Basic operator*();
+};
 template<typename Type>
 inline vector<Type>::vector(size_t _size) :
 	m_size(_size), m_nUsed(0)
@@ -59,3 +85,62 @@ inline void vector<Type>::insert()
 {
 }
 
+template<typename Type>
+inline iterator<Type> vector<Type>::begin()
+{
+	return &m_pData[0];
+}
+
+template<typename Type>
+inline iterator<Type> vector<Type>::end()
+{
+	return &m_pData[m_pUsed];
+}
+
+
+
+template<typename Type>
+inline void vector<Type>::clear()
+{
+	m_nUsed = 0;
+	delete [] m_pData;
+	m_pData = new Type[m_size];
+	
+}
+
+template<typename Type>
+inline void vector<Type>::erase(iterator _index)
+{
+	delete m_pData[_];
+}
+
+template<typename Type>
+inline bool vector<Type>::empty()
+{
+	return m_nUsed;
+}
+
+template<typename Type>
+inline size_t vector<Type>::size()
+{
+	
+	return m_nUsed;
+
+}
+template<class Basic>
+inline iterator<Basic>::iterator(Basic *_arr) :
+	m_Data(_arr)
+{
+}
+template<class Basic>
+inline iterator<Basic> & iterator<Basic>::operator--()
+{
+	*m_Data--;
+	return *this;
+}
+template<class Basic>
+inline iterator<Basic> & iterator<Basic>::operator++()
+{
+	*m_Data++;
+	return *this;
+}
