@@ -12,7 +12,6 @@ class vector{
 public:
 
 	typedef iterator<Type> iterator;
-
 	vector(size_t = 10);
 	~vector();
 	void resize();
