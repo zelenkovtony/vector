@@ -1,12 +1,17 @@
 #include <iostream>
 #include "vector.h"
 
-int main() {
+int main() 
+{
 	vector<int> a;
-	a.push_back(1);
-	a.push_back(2);
+	for(int i=0;i<20;i++)
+		a.push_back(i);
+
 	vector<int>::iterator it=a.begin();
-	a.erase(it);
+	a.erase(++it);
+
+	for (auto i : a)
+		std::cout << i << " ";
 
 	getchar();
 	return 0;
