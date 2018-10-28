@@ -24,19 +24,44 @@ TODO list:
 ~придумать что-то новенькое~
 */
 
-template <class Basic>
-class iterator;
+//template <class Basic>
+//class iterator;
 
 template <typename Type>
 class vector{
 	size_t m_size;
 	Type* m_pData;
 	size_t m_nUsed;
-	friend iterator<Type>;
 	void destroy();
 	bool operator==(Type&);
 public:
-	typedef iterator<Type> iterator;
+	class iterator
+	{
+		Type *m_Data;
+		friend vector;
+	public:
+		iterator() {}
+		iterator(Type*);
+		iterator &operator=(Type*);
+		bool operator!=(iterator);
+
+		bool operator==(iterator);
+		bool operator<=(iterator);
+		bool operator>=(iterator);
+		bool operator<(iterator);
+		bool operator>(iterator);
+		iterator &operator++() {
+			*m_Data++;
+			return *this;
+		}
+
+		iterator operator++(int);
+		iterator &operator--();
+		iterator operator--(int);
+		Type operator*() {
+			return (*m_Data);
+		}
+	};
 	vector(size_t = 10);
 	vector(const vector&);
 	vector(vector&&);
@@ -46,8 +71,7 @@ public:
 	void resize();
 	void push_back(Type);
 	void pop_back(Type); // это изменение последнего элемента в векторе
-	iterator begin();
-	iterator end();
+	
 	size_t size();
 	bool empty();
 	void clear();
@@ -57,31 +81,14 @@ public:
 
 	size_t max_size();
 	Type &operator[](size_t); //доступ к элементу вектора по индексу
+	iterator begin() {
+		return &m_pData[0];
+	}
+	iterator end() {
+		return &m_pData[m_nUsed];
+	}
 };
 
-template<class Basic>
-class iterator
-{
-	typedef vector<Basic> vector;
-	Basic *m_Data;
-	friend vector;
-public:
-	iterator() {}
-	iterator(Basic*);
-	iterator &operator=(Basic*);
-	bool operator!=(iterator);
-	
-	bool operator==(iterator);
-	bool operator<=(iterator);
-	bool operator>=(iterator);
-	bool operator<(iterator);
-	bool operator>(iterator);
-	iterator &operator++();
-	iterator operator++(int);
-	iterator &operator--();
-	iterator operator--(int);
-	Basic operator*();
-};
 
 template<typename Type>
 inline void vector<Type>::destroy()
@@ -175,18 +182,6 @@ inline void vector<Type>::push_back(Type a)
 }
 
 template<typename Type>
-inline iterator<Type> vector<Type>::begin()
-{
-	return &m_pData[0];
-}
-
-template<typename Type>
-inline iterator<Type> vector<Type>::end()
-{
-	return &m_pData[m_nUsed];
-}
-
-template<typename Type>
 inline void vector<Type>::clear()
 {
 	destroy();
@@ -228,20 +223,14 @@ inline size_t vector<Type>::size()
 	return m_nUsed;
 }
 
-template<class Basic>
-inline iterator<Basic>::iterator(Basic *_other) :
+template<typename Type>
+inline vector<Type>::iterator::iterator(Type *_other) :
 	m_Data(_other)
 {
 }
 
-template<class Basic>
-inline iterator<Basic> & iterator<Basic>::operator=(Basic *_other)
-{
-	m_Data = _other;
-}
-
-template<class Basic>
-inline bool iterator<Basic>::operator!=(iterator _other)
+template<typename Type>
+inline bool vector<Type>::iterator::operator!=(iterator _other)
 {
 	return (*m_Data) != (*_other.m_Data);
 }
@@ -252,28 +241,8 @@ inline bool vector<Type>::operator==(Type &_other)
 	return (*m_pData) == (*_other);
 }
 
-template<class Basic>
-inline bool iterator<Basic>::operator==(iterator _other)
+template<typename Type>
+inline bool vector<Type>::iterator::operator==(iterator _other)
 {
 	return *m_Data==*_other.m_Data;
-}
-
-template<class Basic>
-inline iterator<Basic> & iterator<Basic>::operator--()
-{
-	*m_Data--;
-	return *this;
-}
-
-template<class Basic>
-inline Basic iterator<Basic>::operator*()
-{
-	return (*m_Data);
-}
-
-template<class Basic>
-inline iterator<Basic> & iterator<Basic>::operator++()
-{
-	*m_Data++;
-	return *this;
 }
