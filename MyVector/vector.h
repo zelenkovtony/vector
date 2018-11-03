@@ -19,6 +19,7 @@ TODO list:
 
 сложно для реализации:
 	- обработать ошибки с помощью assert(?) возможно другим смособом, более красивым
+	- метод sort, сортирует массив
 
 ~придумать что-то новенькое~
 */
@@ -50,8 +51,6 @@ public:
 	void erase(iterator&, iterator&);
 	void erase();
 	size_t capacity();
-
-	size_t max_size();
 	Type &operator[](const size_t&); //доступ к элементу вектора по индексу
 	iterator begin() const;
 	iterator end() const;
@@ -211,12 +210,32 @@ inline void vector<Type>::erase(iterator& _index)
 template<class Type>
 inline void vector<Type>::erase(iterator& _first, iterator& _last)
 {
-	
+	//идея +- правильная, но реализовано не правильно
+	// данная функция должна удалять ВСЕ элементы 
+	// от _first и до _second
+	// а сейчас оно удаляет лишь _first и _second
+	// но ошибка еще в том, что удаляет 2 элемента, а количество занятых ячеек уменьшает на 1
+
+	Type* m_newData = new Type[m_size];
+	for (size_t i = 0, j = 0; i < m_nUsed; i++) {
+		if (m_pData[i] == (*_first.m_Data))
+			continue;
+		if (m_pData[i] == (*_last.m_Data))
+			continue;
+		m_newData[j++] = m_pData[i];
+
+	}
+	m_nUsed--;
+
+	destroy();
+
+	m_pData = m_newData;
 }
 
 template<class Type>
 inline void vector<Type>::erase()
 {
+	//нужно не просто удалить массив, но и выделить память, поскольку деструктор должен удалять память окончательно
 	destroy();
 	m_nUsed = 0;
 	m_pData = new Type[m_size];
