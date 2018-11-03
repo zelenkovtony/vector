@@ -18,13 +18,12 @@ TODO list:
 	- перегрузки функции erase дл€ удалени€ диапазона и дл€ полной очистки
 
 сложно дл€ реализации:
-	- после выполнени€ манипул€ций с массивом обновл€ютс€ значени€ в итераторе
 	- обработать ошибки с помощью assert(?) возможно другим смособом, более красивым
 
 ~придумать что-то новенькое~
 */
 
-template <typename Type>
+template <class Type>
 class vector{
 	size_t m_size;
 	Type* m_pData;
@@ -32,36 +31,7 @@ class vector{
 	void destroy();
 	bool operator==(Type&);
 public:
-	class iterator
-	{
-		Type *m_Data;
-		friend vector;
-	public:
-		iterator() {}
-		iterator(Type*);
-		iterator &operator=(Type*);
-		bool operator!=(iterator);
-
-		bool operator==(iterator);
-		bool operator<=(iterator);
-		bool operator>=(iterator);
-		bool operator<(iterator);
-		bool operator>(iterator);
-		iterator &operator++() {
-			*m_Data++;
-			return *this;
-		}
-
-		iterator operator++(int);
-		iterator &operator--() {
-			*m_Data--;
-			return *this;
-		};
-		iterator operator--(int);
-		Type operator*() {
-			return (*m_Data);
-		}
-	};
+	class iterator;
 	vector(size_t = 10);
 	vector(const vector&);
 	vector(vector&&);
@@ -74,43 +44,57 @@ public:
 	Type& front();
 	Type& back();
 	size_t size();
-	bool empty();
+	bool empty() const;
 	void clear();
-	void erase(iterator);
-	void erase(iterator,iterator);
+	void erase(iterator&);
+	void erase(iterator&, iterator&);
 	void erase();
 	size_t capacity();
 
 	size_t max_size();
-	Type &operator[](size_t); //доступ к элементу вектора по индексу
-	iterator begin() {
-		return &m_pData[0];
-	}
-	iterator end() {
-		return &m_pData[m_nUsed];
-	}
+	Type &operator[](const size_t&); //доступ к элементу вектора по индексу
+	iterator begin() const;
+	iterator end() const;
 };
 
+template <class Type>
+class vector<Type>::iterator
+{
+	Type *m_Data;
+	friend vector;
+public:
+	iterator() {}
+	iterator(Type*);
+	iterator &operator=(Type*);
+	bool operator!=(const iterator&);
+	bool operator==(const iterator&);
+	iterator &operator++();
+	iterator operator++(int);
+	iterator &operator--();
+	iterator operator--(int);
+	Type operator*();
+};
 
-template<typename Type>
+template<class Type>
 inline void vector<Type>::destroy()
 {
 	if (m_nUsed)
 		delete[] m_pData;
 }
 
-template<typename Type>
+template<class Type>
 inline vector<Type>::vector(size_t _size) :
 	m_size(_size), m_nUsed(0)
 {
 	m_pData = new Type[m_size];
 }
 
-template<typename Type>
+template<class Type>
 inline vector<Type>::vector(const vector & _other)
 {
 	m_size = _other.m_size;
 	m_pData = new Type[m_size];
+	m_nUsed = _other.m_nUsed;
 
 	for (size_t i = 0; i < m_nUsed; i++)
 		m_pData[i] = _other.m_pData[i];
@@ -118,7 +102,7 @@ inline vector<Type>::vector(const vector & _other)
 	return *this;
 
 }
-template<typename Type>
+template<class Type>
 inline vector<Type>::vector(vector && _other):
 	m_pData(_other.m_pData), m_size(_other.m_size),
 	m_nUsed(_other.m_nUsed)
@@ -128,19 +112,19 @@ inline vector<Type>::vector(vector && _other):
 	_other.m_nUsed = 0;
 }
 
-template<typename Type>
+template<class Type>
 inline vector<Type> & vector<Type>::operator=(const vector &_other)
 {
 	m_size = _other.m_size;
 	m_pData = new Type[m_size];
-	m_nUsed = _other.m_nUsed();
+	m_nUsed = _other.m_nUsed;
 
 	for (size_t i = 0; i < m_nUsed; i++)
 		m_pData[i] = _other.m_pData[i];
 	return *this;
 }
 
-template<typename Type>
+template<class Type>
 inline vector<Type> & vector<Type>::operator=(vector &&_other)
 {
 	m_pData = _other.m_pData;
@@ -153,13 +137,13 @@ inline vector<Type> & vector<Type>::operator=(vector &&_other)
 	return *this;
 }
 
-template<typename Type>
+template<class Type>
 inline vector<Type>::~vector()
 {
 	destroy();
 }
 
-template<typename Type>
+template<class Type>
 inline void vector<Type>::resize()
 {
 	m_size *= 2;
@@ -173,7 +157,7 @@ inline void vector<Type>::resize()
 	m_pData = m_newData;
 }
 
-template<typename Type>
+template<class Type>
 inline void vector<Type>::push_back(Type a)
 {
 	if (m_nUsed == m_size)
@@ -182,25 +166,25 @@ inline void vector<Type>::push_back(Type a)
 	m_pData[m_nUsed++] = a;
 }
 
-template<typename Type>
+template<class Type>
 inline void vector<Type>::pop_back()
 {
 	--m_nUsed;
 }
 
-template<typename Type>
+template<class Type>
 inline Type & vector<Type>::front()
 {
 	return m_pData[0];
 }
 
-template<typename Type>
+template<class Type>
 inline Type & vector<Type>::back()
 {
 	return m_pData[m_nUsed - 1];
 }
 
-template<typename Type>
+template<class Type>
 inline void vector<Type>::clear()
 {
 	destroy();
@@ -208,8 +192,8 @@ inline void vector<Type>::clear()
 	m_nUsed = 0;
 }
 
-template<typename Type>
-inline void vector<Type>::erase(iterator _index)
+template<class Type>
+inline void vector<Type>::erase(iterator& _index)
 {
 	Type* m_newData = new Type[m_size];
 	for (size_t i = 0, j = 0; i < m_nUsed; i++) {
@@ -224,81 +208,96 @@ inline void vector<Type>::erase(iterator _index)
 	m_pData = m_newData;
 }
 
-template<typename Type>
-inline void vector<Type>::erase(iterator _first, iterator _last)
+template<class Type>
+inline void vector<Type>::erase(iterator& _first, iterator& _last)
 {
-	Type* m_newData = new Type[m_size];
-	for (size_t i = 0, j = 0; i < m_nUsed; i++) {
-		if (m_pData[i] == (*_first.m_Data))
-			continue;
-		if (m_pData[i] == (*_last.m_Data))
-			continue;
-		m_newData[j++] = m_pData[i];
-
-	}
-	m_nUsed--;
-
-	destroy();
-
-	m_pData = m_newData;
+	
 }
 
-template<typename Type>
+template<class Type>
 inline void vector<Type>::erase()
 {
-	delete &m_pData;
+	destroy();
+	m_nUsed = 0;
+	m_pData = new Type[m_size];
 }
 
-template<typename Type>
+template<class Type>
 inline size_t vector<Type>::capacity()
 {
 	return m_size-m_nUsed;
 }
 
-template<typename Type>
-inline size_t vector<Type>::max_size()
-{
-	return sizeof(Type);
-}
-
-template<typename Type>
-inline Type & vector<Type>::operator[](size_t _index)
+template<class Type>
+inline Type & vector<Type>::operator[](const size_t &_index)
 {
 	return m_pData[_index];
 }
 
-template<typename Type>
-inline bool vector<Type>::empty()
+template<class Type>
+inline typename vector<Type>::iterator vector<Type>::begin() const
+{
+	return &m_pData[0];
+}
+
+template<class Type>
+inline typename vector<Type>::iterator vector<Type>::end() const
+{
+	return &m_pData[m_nUsed];
+}
+
+template<class Type>
+inline bool vector<Type>::empty() const
 {
 	return m_nUsed;
 }
 
-template<typename Type>
+template<class Type>
 inline size_t vector<Type>::size()
 {
 	return m_nUsed;
 }
 
-template<typename Type>
+template<class Type>
 inline vector<Type>::iterator::iterator(Type *_other) :
 	m_Data(_other)
 {
 }
 
-template<typename Type>
-inline bool vector<Type>::iterator::operator!=(iterator _other)
+template<class Type>
+inline bool vector<Type>::iterator::operator!=(const iterator& _other)
 {
 	return (*m_Data) != (*_other.m_Data);
 }
 
-template<typename Type>
+template<class Type>
 inline bool vector<Type>::operator==(Type &_other)
 {
 	return (*m_pData) == (*_other);
 }
 
-template<typename Type>
-inline bool vector<Type>::iterator::operator==(iterator _other)
+template<class Type>
+inline bool vector<Type>::iterator::operator==(const iterator& _other)
 {
 	return *m_Data==*_other.m_Data;
+}
+
+template<class Type>
+inline typename vector<Type>::iterator & vector<Type>::iterator::operator++()
+{
+	*m_Data++;
+	return *this;
+}
+
+template<class Type>
+inline typename vector<Type>::iterator & vector<Type>::iterator::operator--()
+{
+	*m_Data--;
+	return *this;
+}
+
+template<class Type>
+inline Type vector<Type>::iterator::operator*()
+{
+	return (*m_Data);
 }
